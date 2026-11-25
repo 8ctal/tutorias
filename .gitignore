@@ -1,0 +1,15 @@
+.venv/
+.pio/
+node_modules/
+java-swing/target/
+/tools/*
+!/tools/diagram-renderer/
+/tools/diagram-renderer/*
+!/tools/diagram-renderer/package.json
+!/tools/diagram-renderer/package-lock.json
+/.github/modernize/
+*.log
+.env
+.env.*
+__pycache__/
+*.py[cod]

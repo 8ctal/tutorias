@@ -1,0 +1,9 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	symlinks = false
+	ignorecase = true
+[remote "origin"]
+	url = git@github.com:8ctal/proyecto_poo_final.git
+	fetch = +refs/heads/*:refs/remotes/origin/*

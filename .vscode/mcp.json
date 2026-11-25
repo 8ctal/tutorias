@@ -1,0 +1,4 @@
+{
+  "inputs": [{"id":"wokwi-cli-token","type":"promptString","description":"Token Wokwi CI (https://wokwi.com/dashboard/ci)","password":true}],
+  "servers": {"Wokwi":{"type":"stdio","command":"${workspaceFolder}/tools/wokwi-cli.exe","args":["mcp","${workspaceFolder}"],"env":{"WOKWI_CLI_TOKEN":"${input:wokwi-cli-token}"}}}
+}

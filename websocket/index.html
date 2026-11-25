@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<!-- Declara que el documento utiliza el estándar HTML5. -->
+<html lang="es">
+<!-- Indica que el idioma principal de la página es español. -->
+
+<head>
+    <!-- Permite mostrar correctamente caracteres como ñ y tildes. -->
+    <meta charset="UTF-8">
+    <!-- Hace que la interfaz se adapte a pantallas pequeñas. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Describe la página para navegadores y herramientas de accesibilidad. -->
+    <meta name="description" content="Cliente de prueba para el servidor WebSocket local.">
+    <!-- Texto que aparece en la pestaña del navegador. -->
+    <title>Cliente WebSocket</title>
+
+    <!-- Comienza la hoja de estilos propia de esta página. -->
+    <style>
+        /* Define valores globales y la fuente principal. */
+        :root {
+            /* Solicita una apariencia clara cuando el navegador ofrece temas. */
+            color-scheme: light;
+            /* Usa una fuente del sistema, sin descargar recursos externos. */
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        /* Estilos generales del documento visible. */
+        body {
+            /* Color gris claro del fondo. */
+            background: #ebebe9;
+            /* Elimina el margen automático del navegador. */
+            margin: 0;
+            /* Separa el contenido de los bordes de la ventana. */
+            padding: 30px;
+        }
+
+        /* Contenedor principal de la aplicación. */
+        .container {
+            /* Limita el ancho para facilitar la lectura. */
+            max-width: 700px;
+            /* Centra el contenedor horizontalmente. */
+            margin: auto;
+            /* Color de fondo ligeramente diferente al de la página. */
+            background: #f5f3f3;
+            /* Espacio interior entre el borde y los controles. */
+            padding: 25px;
+            /* Redondea las esquinas. */
+            border-radius: 12px;
+            /* Añade una sombra sutil alrededor del panel. */
+            box-shadow: 0 4px 12px #0002;
+        }
+
+        /* Apariencia del título principal. */
+        h1 {
+            /* Color azul del título. */
+            color: #174a7e;
+            /* Centra el texto. */
+            text-align: center;
+        }
+
+        /* Apariencia común de las etiquetas de los controles. */
+        label {
+            /* Hace que cada etiqueta ocupe una línea completa. */
+            display: block;
+            /* Separa la etiqueta del control anterior. */
+            margin-top: 15px;
+            /* Resalta el texto de la etiqueta. */
+            font-weight: bold;
+        }
+
+        /* Estilos comunes de los campos de texto. */
+        input {
+            /* Hace que el campo ocupe todo el ancho disponible. */
+            width: 100%;
+            /* Añade espacio para que el texto sea cómodo de leer. */
+            padding: 10px;
+            /* Separa el campo de la etiqueta. */
+            margin-top: 6px;
+            /* Incluye padding y borde dentro del ancho total. */
+            box-sizing: border-box;
+            /* Define un borde gris. */
+            border: 1px solid #bbb;
+            /* Redondea el borde. */
+            border-radius: 5px;
+            /* Hereda la fuente del documento. */
+            font: inherit;
+        }
+
+        /* Estilos comunes de todos los botones. */
+        button {
+            /* Espacio interior vertical y horizontal. */
+            padding: 10px 16px;
+            /* Separa los botones entre sí y del control anterior. */
+            margin: 12px 5px 0 0;
+            /* Quita el borde predeterminado. */
+            border: none;
+            /* Redondea las esquinas. */
+            border-radius: 5px;
+            /* Hace blanco el texto sobre fondos de color. */
+            color: white;
+            /* Muestra una mano al pasar sobre un botón activo. */
+            cursor: pointer;
+            /* Usa la misma fuente que el resto de la página. */
+            font: inherit;
+        }
+
+        /* Apariencia de un botón que no puede pulsarse. */
+        button:disabled {
+            /* Reduce visualmente la intensidad. */
+            opacity: 0.5;
+            /* Indica que no se puede interactuar con él. */
+            cursor: not-allowed;
+        }
+
+        /* Color del botón para abrir la conexión. */
+        .connect { background: #00511e; }
+        /* Color del botón para cerrar la conexión. */
+        .disconnect { background: #c0392b; }
+        /* Color del botón para enviar un mensaje. */
+        .send { background: #1769aa; }
+        /* Color neutro del botón para borrar la consola. */
+        .clear { background: #666; }
+
+        /* Panel que informa del estado actual de WebSocket. */
+        #status {
+            /* Separa el estado de los botones. */
+            margin-top: 20px;
+            /* Añade espacio interior. */
+            padding: 12px;
+            /* Fondo neutro inicial. */
+            background: #eee;
+            /* Redondea el panel. */
+            border-radius: 5px;
+            /* Destaca el estado con texto en negrita. */
+            font-weight: bold;
+        }
+
+        /* Consola donde se muestran mensajes enviados y recibidos. */
+        #messages {
+            /* Altura fija para conservar una interfaz compacta. */
+            height: 250px;
+            /* Permite desplazarse cuando hay muchos mensajes. */
+            overflow-y: auto;
+            /* Fondo oscuro de consola. */
+            background: #17212b;
+            /* Color claro para el texto. */
+            color: #e5eaf0;
+            /* Espacio interior. */
+            padding: 12px;
+            /* Redondea la consola. */
+            border-radius: 5px;
+            /* Separa la consola de su etiqueta. */
+            margin-top: 10px;
+            /* Usa una fuente monoespaciada para facilitar la lectura. */
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            /* Conserva saltos de línea y espacios del contenido. */
+            white-space: pre-wrap;
+            /* Permite partir textos muy largos. */
+            overflow-wrap: anywhere;
+        }
+
+        /* Color de los mensajes recibidos del servidor. */
+        .received { color: #7ee5a1; }
+        /* Color de los mensajes enviados por el cliente. */
+        .sent { color: #8dc8ff; }
+        /* Color de eventos informativos de la aplicación. */
+        .system { color: #ffda80; }
+    </style>
+</head>
+
+<body>
+    <!-- main identifica el contenido principal de la aplicación. -->
+    <main class="container">
+        <!-- Título visible de la herramienta. -->
+        <h1>Cliente WebSocket</h1>
+
+        <!-- Etiqueta asociada al campo donde se escribe la dirección WebSocket. -->
+        <label for="server">Dirección del servidor:</label>
+        <!-- Permite cambiar la dirección del servidor antes de conectar. -->
+        <input id="server" type="url" value="ws://127.0.0.1:13000" placeholder="ws://IP:puerto"
+            autocomplete="url">
+
+        <!-- Botón que ejecuta connectSocket. -->
+        <button class="connect" id="connectBtn" type="button">Conectar</button>
+        <!-- Se activa solo mientras existe una conexión abierta o conectándose. -->
+        <button class="disconnect" id="disconnectBtn" type="button" disabled>Desconectar</button>
+
+        <!-- Muestra cambios de estado y anuncia esos cambios a lectores de pantalla. -->
+        <div id="status" role="status" aria-live="polite">Estado: Desconectado</div>
+
+        <!-- Etiqueta asociada al campo del mensaje. -->
+        <label for="message">Mensaje para el servidor:</label>
+        <!-- Campo donde el usuario escribe el texto que enviará. -->
+        <input id="message" type="text" placeholder="Escriba un mensaje..." autocomplete="off">
+        <!-- Se activa después del evento open de WebSocket. -->
+        <button class="send" id="sendBtn" type="button" disabled>Enviar mensaje</button>
+
+        <!-- Etiqueta descriptiva de la consola. -->
+        <label for="messages">Consola de mensajes:</label>
+        <!-- Aquí se insertan las líneas creadas por logMessage. -->
+        <div id="messages" role="log" aria-live="polite"></div>
+        <!-- Elimina todas las líneas de la consola. -->
+        <button class="clear" id="clearBtn" type="button">Limpiar consola</button>
+    </main>
+
+    <!-- Comienza el código JavaScript del cliente. -->
+    <script>
+        // Elige WebSocket seguro cuando la página se sirve mediante HTTPS.
+        const websocketProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+        // Construye la dirección usando el mismo host y puerto de la página.
+        const defaultServerUrl = `${websocketProtocol}://${window.location.host || "127.0.0.1:13000"}`;
+        // Guardará la instancia WebSocket actual; inicialmente no hay conexión.
+        let socket = null;
+
+        // Obtiene el campo que contiene la dirección del servidor.
+        const serverInput = document.getElementById("server");
+        // Obtiene el campo donde se escribe el mensaje.
+        const messageInput = document.getElementById("message");
+        // Obtiene el elemento que presenta el estado de la conexión.
+        const statusDiv = document.getElementById("status");
+        // Obtiene la consola visual de mensajes.
+        const messagesDiv = document.getElementById("messages");
+        // Obtiene el botón para conectar.
+        const connectBtn = document.getElementById("connectBtn");
+        // Obtiene el botón para desconectar.
+        const disconnectBtn = document.getElementById("disconnectBtn");
+        // Obtiene el botón para enviar mensajes.
+        const sendBtn = document.getElementById("sendBtn");
+
+        // Usa la dirección calculada cuando la página fue servida por un servidor HTTP o HTTPS.
+        if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+            serverInput.value = defaultServerUrl;
+        }
+
+        /**
+         * Añade una línea segura a la consola.
+         * textContent trata el mensaje como texto y no ejecuta HTML recibido.
+         *
+         * @param {string} message Texto que se mostrará.
+         * @param {string} type Clase CSS: system, sent o received.
+         */
+        function logMessage(message, type = "system") {
+            // Crea un div independiente para esta línea.
+            const line = document.createElement("div");
+            // Aplica el color correspondiente al tipo de mensaje.
+            line.className = type;
+            // Añade hora y contenido sin interpretar etiquetas HTML.
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            // Agrega la línea al final de la consola.
+            messagesDiv.appendChild(line);
+            // Desplaza la consola para mostrar el mensaje más reciente.
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        /**
+         * Cambia el texto y color del indicador de conexión.
+         *
+         * @param {string} state Texto del estado.
+         * @param {string} background Color CSS del fondo.
+         */
+        function setConnectionState(state, background = "#eee") {
+            // Actualiza el texto que ve el usuario.
+            statusDiv.textContent = `Estado: ${state}`;
+            // Cambia el color para distinguir conectado, error o espera.
+            statusDiv.style.background = background;
+        }
+
+        /**
+         * Valida la dirección, crea WebSocket y registra sus eventos.
+         */
+        function connectSocket() {
+            // Quita espacios antes y después de la dirección escrita.
+            const url = serverInput.value.trim();
+
+            // Acepta únicamente protocolos WebSocket seguros o normales.
+            if (!/^wss?:\/\/.+/i.test(url)) {
+                // Informa visualmente del dato inválido.
+                setConnectionState("Error", "#f7c6c6");
+                // Explica al usuario el formato esperado.
+                logMessage("La dirección debe comenzar con ws:// o wss://.");
+                // Detiene la función antes de crear una conexión incorrecta.
+                return;
+            }
+
+            // Comprueba si ya hay una conexión conectándose o abierta.
+            if (socket && [WebSocket.CONNECTING, WebSocket.OPEN].includes(socket.readyState)) {
+                // Evita crear una segunda conexión accidental.
+                logMessage("Ya existe una conexión activa o en proceso.");
+                // Termina esta ejecución.
+                return;
+            }
+
+            try {
+                // Abre una conexión WebSocket con la dirección validada.
+                socket = new WebSocket(url);
+                // Indica que la conexión todavía está negociándose.
+                setConnectionState("Conectando...", "#fff0c2");
+                // Evita pulsar Conectar varias veces durante la conexión.
+                connectBtn.disabled = true;
+                // Registra el intento en la consola.
+                logMessage(`Intentando conectar con ${url}`);
+
+                // Se ejecuta cuando el servidor acepta la conexión.
+                socket.addEventListener("open", () => {
+                    // Marca la conexión como lista para usar.
+                    setConnectionState("Conectado", "#c9f2d5");
+                    // Permite cerrar la conexión.
+                    disconnectBtn.disabled = false;
+                    // Permite enviar mensajes.
+                    sendBtn.disabled = false;
+                    // Informa del éxito.
+                    logMessage("Conexión establecida.");
+                });
+
+                // Se ejecuta cada vez que llega un mensaje del servidor.
+                socket.addEventListener("message", ({ data }) => {
+                    try {
+                        // Intenta convertir el texto JSON del servidor en un objeto.
+                        const payload = JSON.parse(data);
+                        // Muestra el texto contenido en la propiedad message.
+                        logMessage(`Servidor: ${payload.message}`, "received");
+                    } catch {
+                        // Si no es JSON, muestra directamente el dato recibido.
+                        logMessage(`Servidor: ${data}`, "received");
+                    }
+                });
+
+                // Se ejecuta ante un error de comunicación.
+                socket.addEventListener("error", () => {
+                    // Informa sin exponer detalles internos del navegador.
+                    logMessage("Se produjo un error en la conexión.");
+                });
+
+                // Se ejecuta cuando la conexión termina.
+                socket.addEventListener("close", (event) => {
+                    // Muestra el código de cierre proporcionado por WebSocket.
+                    setConnectionState(`Desconectado (código ${event.code})`);
+                    // Permite volver a conectarse.
+                    connectBtn.disabled = false;
+                    // Ya no se puede cerrar una conexión terminada.
+                    disconnectBtn.disabled = true;
+                    // Ya no se pueden enviar mensajes.
+                    sendBtn.disabled = true;
+                    // Muestra la razón si el servidor la proporcionó.
+                    logMessage(`Conexión cerrada${event.reason ? `: ${event.reason}` : "."}`);
+                });
+            } catch (error) {
+                // Captura errores inmediatos, como una URL no aceptada por el navegador.
+                setConnectionState("Error", "#f7c6c6");
+                // Permite corregir la dirección y volver a intentar.
+                connectBtn.disabled = false;
+                // Muestra el detalle disponible del error.
+                logMessage(`Error: ${error.message}`);
+            }
+        }
+
+        /**
+         * Envía el contenido del campo al servidor WebSocket.
+         */
+        function sendMessage() {
+            // Quita espacios innecesarios del mensaje.
+            const message = messageInput.value.trim();
+
+            // Comprueba que exista una conexión lista para enviar.
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                // Informa por qué no se puede enviar.
+                logMessage("No hay conexión con el servidor.");
+                // Evita llamar send sobre una conexión inexistente.
+                return;
+            }
+
+            // No envía mensajes vacíos.
+            if (!message) return;
+
+            // Envía el texto al servidor.
+            socket.send(message);
+            // Refleja inmediatamente el mensaje en la consola local.
+            logMessage(`Cliente: ${message}`, "sent");
+            // Limpia el campo para el siguiente mensaje.
+            messageInput.value = "";
+            // Devuelve el cursor al campo de escritura.
+            messageInput.focus();
+        }
+
+        /**
+         * Solicita un cierre normal de la conexión actual.
+         */
+        function disconnectSocket() {
+            // Solo cierra conexiones abiertas o todavía conectándose.
+            if (socket && [WebSocket.OPEN, WebSocket.CONNECTING].includes(socket.readyState)) {
+                // Código 1000 significa cierre normal solicitado por el cliente.
+                socket.close(1000, "Desconexión solicitada por el cliente");
+            }
+        }
+
+        // Relaciona el clic de Conectar con la función correspondiente.
+        connectBtn.addEventListener("click", connectSocket);
+        // Relaciona el clic de Desconectar con la función correspondiente.
+        disconnectBtn.addEventListener("click", disconnectSocket);
+        // Relaciona el clic de Enviar con la función correspondiente.
+        sendBtn.addEventListener("click", sendMessage);
+        // Borra todas las líneas de la consola sin recargar la página.
+        document.getElementById("clearBtn").addEventListener("click", () => messagesDiv.replaceChildren());
+        // Permite enviar con Enter además de pulsar el botón.
+        messageInput.addEventListener("keydown", (event) => {
+            // Solo Enter debe activar el envío mediante teclado.
+            if (event.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+name: Temperatura, aceleracion y pulsador
+version: 1
+author: Monitor multisensor
+steps:
+  - wait-serial: 'INFO,READY'
+  - wait-serial: 'DATA1,22.00,'
+  - set-control:
+      part-id: temp
+      name: temperature
+      value: 35
+  - wait-serial: 'DATA1,35.00,'
+  - set-control:
+      part-id: mpu
+      name: accelX
+      value: 1
+  - set-control:
+      part-id: btn
+      name: pressed
+      value: 1
+  - delay: 1200ms
+  - wait-serial: '9.807,0.000,9.807,1'
+  - set-control:
+      part-id: btn
+      name: pressed
+      value: 0
+  - delay: 1200ms
+  - wait-serial: '9.807,0.000,9.807,0'

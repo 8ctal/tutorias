@@ -1,0 +1,42 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitor de sensores · ESP32</title>
+  <link rel="stylesheet" href="/dashboard.css">
+  <script type="module" src="/dashboard.js"></script>
+</head>
+<body>
+  <header class="bar"><div><span class="mark" aria-hidden="true">⌁</span> ESP32 <span class="divider">/</span> Monitor de sensores</div></header>
+  <main>
+    <section class="intro">
+      <div><h1>Monitor de sensores</h1><p>Lecturas en tiempo real del ESP32</p></div>
+      <span id="status" class="badge" role="status">Desconectado</span>
+    </section>
+    <section class="panel connection" aria-labelledby="connection-title">
+      <div><h2 id="connection-title">Conexión</h2><p>115200 baudios · Libera el puerto en Swing o en el IDE antes de abrirlo por USB.</p></div>
+      <div class="actions">
+        <button id="usb" class="primary">Conectar por USB</button>
+        <button id="wokwi">Wokwi</button>
+        <button id="disconnect" disabled>Desconectar</button>
+      </div>
+    </section>
+    <section class="readings" aria-labelledby="readings-title">
+      <h2 id="readings-title">Lecturas</h2>
+      <div class="grid">
+        <article class="panel metric"><h3>Temperatura</h3><strong id="temperature">—</strong><p>DS18x20 · °C</p></article>
+        <article class="panel metric"><h3>Distancia</h3><strong id="distance">—</strong><p>HC-SR04 · cm</p></article>
+        <article class="panel metric"><h3>Pulsador</h3><strong id="button">—</strong><p>GPIO27</p></article>
+        <article class="panel metric"><h3>Aceleración X</h3><strong id="ax">—</strong><p>m/s²</p></article>
+        <article class="panel metric"><h3>Aceleración Y</h3><strong id="ay">—</strong><p>m/s²</p></article>
+        <article class="panel metric"><h3>Aceleración Z</h3><strong id="az">—</strong><p>m/s²</p></article>
+      </div>
+    </section>
+    <section class="panel console" aria-labelledby="console-title">
+      <div class="console-header"><h2 id="console-title">Consola serie</h2><button id="clear">Limpiar</button></div>
+      <pre id="log" tabindex="0" aria-label="Registro de mensajes">En espera de una conexión.</pre>
+    </section>
+  </main>
+</body>
+</html>
